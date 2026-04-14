@@ -40,7 +40,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MatchZy-${{ env.MATCHZY_VERSION }}-${{ github.sha }}
+          name: MatchZy-${{ env.MATCHZY_VERSION }}-${{ github.event.pull_request.head.sha || github.sha }}
           path: MatchZy-${{ env.MATCHZY_VERSION }}.zip
           retention-days: 14
           if-no-files-found: error
