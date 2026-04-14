@@ -1,0 +1,46 @@
+name: PR Build
+
+on:
+  pull_request:
+    paths-ignore:
+        - "documentation/**"
+  push:
+    paths-ignore:
+        - "documentation/**"
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Plugin Artifact
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '8.0'
+
+      - name: Get MatchZy Version
+        id: MATCHZY_VERSION
+        run: |
+            MATCHZY_VERSION=$(grep -oP 'ModuleVersion\s*=>\s*"\K[^"]*' MatchZy.cs)
+            echo "MATCHZY_VERSION=$MATCHZY_VERSION" >> $GITHUB_ENV
+
+      - name: Build Plugin Package
+        run: |
+          echo "Creating MatchZy base package with version: $MATCHZY_VERSION"
+          dotnet publish -o package/addons/counterstrikesharp/plugins/MatchZy
+          cp -r cfg package
+          cd package && zip -q -r ../MatchZy-$MATCHZY_VERSION.zip * && cd ..
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: MatchZy-${{ env.MATCHZY_VERSION }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: MatchZy-${{ env.MATCHZY_VERSION }}.zip
+          retention-days: 14
+          if-no-files-found: error
