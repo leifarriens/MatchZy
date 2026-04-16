@@ -1044,11 +1044,7 @@ namespace MatchZy
             // disable noclip on spawn -- all no clipping functionality is handled by the plugin!
             // Movement adjustments are consistent with cs2-noclip.
             CBasePlayerPawn pawn = player!.PlayerPawn.Value!;
-            if (pawn.MoveType == MoveType_t.MOVETYPE_NOCLIP) {
-                pawn.MoveType = MoveType_t.MOVETYPE_WALK;
-                pawn.ActualMoveType = MoveType_t.MOVETYPE_WALK;
-                Utilities.SetStateChanged(pawn, "CBaseEntity", "m_MoveType");
-            }
+            pawn.ResetNoclipToWalk();
 
             if (matchStarted && (matchzyTeam1.coach.Contains(player!) || matchzyTeam2.coach.Contains(player!)))
             {
@@ -1766,6 +1762,7 @@ namespace MatchZy
                 }
             }
             player!.PlayerPawn.Value!.Teleport(teamSpawns[farthestIndex].PlayerPosition, teamSpawns[farthestIndex].PlayerAngle, new Vector(0, 0, 0));
+            player!.PlayerPawn.Value!.ResetNoclipToWalk();
         }
 
         private bool TryTeleportPlayerToSpawn(CCSPlayerController player, byte teamNum, int spawnIndex, out int spawnCount)
@@ -1776,6 +1773,7 @@ namespace MatchZy
             if (spawnIndex < 0 || spawnIndex >= spawnCount) return false;
 
             player.PlayerPawn.Value!.Teleport(teamSpawns[spawnIndex].PlayerPosition, teamSpawns[spawnIndex].PlayerAngle, new Vector(0, 0, 0));
+            player.PlayerPawn.Value!.ResetNoclipToWalk();
             return true;
         }
 
@@ -1804,6 +1802,7 @@ namespace MatchZy
             if (closestIndex < 0) return false;
 
             player.PlayerPawn.Value!.Teleport(teamSpawns[closestIndex].PlayerPosition, teamSpawns[closestIndex].PlayerAngle, new Vector(0, 0, 0));
+            player.PlayerPawn.Value!.ResetNoclipToWalk();
             return true;
         }
 
